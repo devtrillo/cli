@@ -25,6 +25,7 @@ const commitCommand = program
   .option("-m --message <message>", "The message of the commit")
   .option("-r --risk <risk>", "The risk level of the commit")
   .option("-t --ticket <ticket>", "The ticket that are you working on")
+  .option("-p --push", "Should push after the commit?")
   .option(
     "-f --replace",
     "In case you want to replace the commit in the branches",
@@ -46,10 +47,20 @@ const commitCommand = program
   .action(async (responses) => {
     console.log(
       customColor(`
-      ____ ____ ____ ____ ____ ____ _________ ____ ____ ____ ____ ____ ____ ____ 
-     ||C |||o |||m |||m |||i |||t |||       |||h |||a |||n |||d |||l |||e |||r ||
-     ||__|||__|||__|||__|||__|||__|||_______|||__|||__|||__|||__|||__|||__|||__||
-     |/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|/_______\\|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|/__\\|`)
+     ██████╗ ██████╗ ███╗   ███╗███╗   ███╗██╗████████╗   
+    ██╔════╝██╔═══██╗████╗ ████║████╗ ████║██║╚══██╔══╝   
+    ██║     ██║   ██║██╔████╔██║██╔████╔██║██║   ██║      
+    ██║     ██║   ██║██║╚██╔╝██║██║╚██╔╝██║██║   ██║      
+    ╚██████╗╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║   ██║      
+     ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝      
+                                                          
+██╗  ██╗ █████╗ ███╗   ██╗██████╗ ██╗     ███████╗██████╗ 
+██║  ██║██╔══██╗████╗  ██║██╔══██╗██║     ██╔════╝██╔══██╗
+███████║███████║██╔██╗ ██║██║  ██║██║     █████╗  ██████╔╝
+██╔══██║██╔══██║██║╚██╗██║██║  ██║██║     ██╔══╝  ██╔══██╗
+██║  ██║██║  ██║██║ ╚████║██████╔╝███████╗███████╗██║  ██║
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝
+                                                          `)
     );
 
     const { message, risk, ticket, replace } = responses;
@@ -86,11 +97,17 @@ const commitCommand = program
       };
       await updateTicketNumber(finalResponses.ticket, true);
       await asyncShellCommand(
-        `git commit -m "${lowerCase(finalResponses.message)}" -m "ticket=[#${finalResponses.ticket
+        `git commit -m "${(finalResponses.message)}" -m "ticket=[#${finalResponses.ticket
         }]" -m "risk=${lowerCase(finalResponses.risk)}"`
       );
       greenLog("The commit was created successfully");
       greenLog("(´・ω・)っ由");
+      if (responses.push) {
+        greenLog("I'm pushing your changes...")
+        await asyncShellCommand("git push -u origin HEAD");
+        greenLog("Your changes have been pushed")
+      }
+
     } catch (e) {
       logError(e);
     }
