@@ -35,7 +35,7 @@ export const saveBranchNumber = async (ticketNumber: string) => {
   if (!isTicketValid(ticketNumber))
     throw new Error("The ticket number is incorrect");
   const branches = getWorkingBranches();
-  const gitBranch = `${await getGitBranch()}`
+  const gitBranch = `${await getProjectName()}-${await getGitBranch()}`
   console.log(gitBranch);
   branches[gitBranch] = ticketNumber;
   console.log(branches);
