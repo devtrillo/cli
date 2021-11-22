@@ -17,7 +17,10 @@ export const getGitBranch = async () =>
   trim(await asyncShellCommand("git symbolic-ref --short HEAD"));
 
 const getProjectName = async () => {
-  const projectPath = split(trim(await asyncShellCommand("git rev-parse --show-toplevel")), '/', 1)
+  const projectPath = trim(await asyncShellCommand("git rev-parse --show-toplevel"))
+  console.log(projectPath)
+  console.log(split(projectPath, '/', 2))
+
   return head(projectPath)
 
 }
