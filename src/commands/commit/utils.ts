@@ -1,6 +1,6 @@
 import { asyncShellCommand, logError } from "../../utils";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { get, trim } from "lodash";
+import { get, trim, split, head } from "lodash";
 
 const savedFileName = `${__dirname}/branches.json`;
 
@@ -16,6 +16,12 @@ export const isRiskValid = (risk: string) => riskOptions.indexOf(risk) !== -1;
 export const getGitBranch = async () =>
   trim(await asyncShellCommand("git symbolic-ref --short HEAD"));
 
+const getProjectName = async () => {
+  const projectPath = split(trim(await asyncShellCommand("git rev-parse --show-toplevel")), '/', 1)
+  return head(projectPath)
+
+}
+
 export const getWorkingBranches = () => {
   if (existsSync(savedFileName)) {
     return JSON.parse(readFileSync(savedFileName).toString());
@@ -29,7 +35,7 @@ export const saveBranchNumber = async (ticketNumber: string) => {
   if (!isTicketValid(ticketNumber))
     throw new Error("The ticket number is incorrect");
   const branches = getWorkingBranches();
-  const gitBranch = await getGitBranch();
+  const gitBranch = `${await getGitBranch()}`
   console.log(gitBranch);
   branches[gitBranch] = ticketNumber;
   console.log(branches);
