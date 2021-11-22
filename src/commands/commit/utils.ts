@@ -1,6 +1,6 @@
 import { asyncShellCommand, logError } from "../../utils";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { get, trim, split, head } from "lodash";
+import { get, trim, split, last } from "lodash";
 
 const savedFileName = `${__dirname}/branches.json`;
 
@@ -17,11 +17,10 @@ export const getGitBranch = async () =>
   trim(await asyncShellCommand("git symbolic-ref --short HEAD"));
 
 const getProjectName = async () => {
-  const projectPath = trim(await asyncShellCommand("git rev-parse --show-toplevel"))
+  const projectPath = split(trim(await asyncShellCommand("git rev-parse --show-toplevel")), '/')
   console.log(projectPath)
-  console.log(split(projectPath, '/', 2))
 
-  return head(projectPath)
+  return last(projectPath)
 
 }
 
