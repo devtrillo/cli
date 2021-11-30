@@ -1,5 +1,6 @@
 const watch = require("esbuild");
 const chalk = require("chalk");
+
 const {
   logCompileResult,
   commonConfig,

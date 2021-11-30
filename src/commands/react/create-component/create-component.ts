@@ -1,9 +1,8 @@
 import * as fs from "fs/promises";
 import { Command } from "commander";
+import inquirer from "inquirer";
 
 import { greenLog } from "../../../utils";
-import inquirer from "inquirer";
-import { capitalize } from "lodash";
 
 const program = new Command();
 
@@ -29,64 +28,61 @@ type CreateFiles = {
   componentName: string;
   isTypescript: boolean;
   isLegacy: boolean;
+  css: boolean;
 };
 const createFiles = async ({
   directory,
   componentName,
   isTypescript,
   isLegacy,
+  css,
 }: CreateFiles) => {
   const extension = isTypescript ? "ts" : "js";
-  const capitalizedName = capitalize(componentName);
   const files = [
     {
-      file: `index.${extension}`,
-      content: `export {default as ${capitalizedName}} from './${capitalizedName}';`,
-    },
-    {
-      file: `${capitalizedName}.${extension}x`,
+      file: `index.${extension}x`,
       content: `${isLegacy ? 'import React from "react"' : ""}
-import style from './${capitalizedName}.module.css'
-const ${capitalizedName} = (props)=>{
+    ${css ? "import style from './${componentName}.module.css'" : ""}
+const ${componentName} = (props)=>{
   return <div>${componentName}</div>
 }
 
-export default ${capitalizedName}
+export default ${componentName}
     `,
     },
     //{ file: `${capitalizedName}.stories.${extension}`, content: `` },
     {
-      file: `${componentName}.test.${extension}`,
+      file: `${componentName}.test.${extension}x`,
       content: `import { render, screen } from "@testing-library/react";
 import renderer from "react-test-renderer";
 
-import ${capitalizedName} from "./${capitalizedName}";
+import ${componentName} from "./index";
 
-describe("The ${capitalizedName} component", function () {
+describe("The ${componentName} component", function () {
   it("should not change", function () {
-    const tree = renderer.create(<${capitalizedName} />).toJSON();
+    const tree = renderer.create(<${componentName} />).toJSON();
     expect(tree).toMatchSnapshot();
   });
-  it("should render a footer", function () {
-    const { getByText } = render(<${capitalizedName} />);
-    expect(getByText("${componentName}")).toBeInTheDocument();
+  it("should render a ${componentName}", function () {
+     render(<${componentName} />);
+    expect(screen.getByText("${componentName}")).toBeInTheDocument();
   });
 });
 `,
     },
-    { file: `${capitalizedName}.module.css`, content: `` },
   ];
   try {
     greenLog();
-    const dirToSave = `${directory}/${capitalizedName}`;
+    const dirToSave = `${directory}/${componentName}`;
     await fs.mkdir(dirToSave, { recursive: true });
+    if (css) files.push({ file: `${componentName}.module.css`, content: "" });
     for (const { file, content } of files) {
       greenLog("Creating the file", `${directory}/${file}`);
       await fs.writeFile(`${dirToSave}/${file}`, content);
     }
     await fs.appendFile(
       `${directory}/index.${extension}`,
-      `\n export * from "./${capitalizedName}";`
+      `\n export {default as ${componentName}} from "./${componentName}";`
     );
   } catch (e) {
     console.error(e);
@@ -97,6 +93,7 @@ type Options = {
   name?: string;
   typescript?: boolean;
   legacy?: boolean;
+  css?: boolean;
 };
 
 export const createComponent = program
@@ -104,6 +101,7 @@ export const createComponent = program
   .option("-n --name <name>", "name of the component")
   .option("-t --typescript ", "If i should create a typescript command")
   .option("-l --legacy ", "If I'm using a legacy version of React")
+  .option("-c --css ", "With CSS")
   .action(async (options: Options) => {
     greenLog("Creating a new react component...", JSON.stringify(options));
     try {
@@ -132,6 +130,7 @@ export const createComponent = program
             new inquirer.Separator(" = Custom options = "),
             { name: "typescript" },
             { name: "legacy" },
+            { name: "with css" },
           ],
         },
         {
@@ -149,6 +148,7 @@ export const createComponent = program
         isTypescript:
           options.typescript ||
           inquirerResponses.options.includes("typescript"),
+        css: options.css || inquirerResponses.options.includes("with css"),
       };
       await createFiles(finalOptions);
     } catch (e) {

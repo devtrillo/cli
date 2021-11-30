@@ -1,6 +1,6 @@
 const chalk = require("chalk");
 const lodashTransformer = require("esbuild-plugin-lodash");
-const { rmSync, existsSync } = require("fs");
+const { nodeExternalsPlugin } = require("esbuild-node-externals");
 
 const logCompileResult = (result = {}) => {
   const { errors, warnings } = result;
@@ -31,7 +31,7 @@ const commonConfig = {
   entryPoints: ["./src/cli.ts"],
   outdir: "dist",
   platform: "node",
-  plugins: [lodashTransformer()],
+  plugins: [lodashTransformer(), nodeExternalsPlugin()],
 };
 
 module.exports = {

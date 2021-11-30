@@ -1,6 +1,7 @@
 import { asyncShellCommand, logError } from "../../utils";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { get, trim, split, last } from "lodash";
+import { get, last, split, trim } from "lodash";
+import { cyan } from "chalk";
 
 const savedFileName = `${__dirname}/branches.json`;
 
@@ -16,46 +17,50 @@ export const isRiskValid = (risk: string) => riskOptions.indexOf(risk) !== -1;
 export const getGitBranch = async () =>
   trim(await asyncShellCommand("git symbolic-ref --short HEAD"));
 
-const getProjectName = async () => {
-  const projectPath = split(trim(await asyncShellCommand("git rev-parse --show-toplevel")), '/')
-  console.log(projectPath)
+async function getProjectName() {
+  const projectPath = split(
+    trim(await asyncShellCommand("git rev-parse --show-toplevel")),
+    "/"
+  );
 
-  return last(projectPath)
-
+  return last(projectPath);
 }
 
-export const getWorkingBranches = () => {
+export function getWorkingBranches() {
   if (existsSync(savedFileName)) {
     return JSON.parse(readFileSync(savedFileName).toString());
   } else {
     writeFileSync(savedFileName, "{}");
     return {};
   }
-};
+}
 
-export const saveBranchNumber = async (ticketNumber: string) => {
+export async function saveBranchNumber(ticketNumber: string) {
   if (!isTicketValid(ticketNumber))
     throw new Error("The ticket number is incorrect");
   const branches = getWorkingBranches();
-  const gitBranch = `${await getProjectName()}-${await getGitBranch()}`
-  console.log(gitBranch);
+  const gitBranch = `${await getProjectName()}-${await getGitBranch()}`;
   branches[gitBranch] = ticketNumber;
-  console.log(branches);
   writeFileSync(savedFileName, JSON.stringify(branches, null, 2));
-};
+}
 
-export const updateTicketNumber = async (
+export async function updateTicketNumber(
   ticket: string | undefined,
   replace = false
-) => {
+) {
   try {
     if (ticket && replace) await saveBranchNumber(ticket);
     const workingGitBranch = await getGitBranch();
     const savedBranch = get(getWorkingBranches(), workingGitBranch);
-    return savedBranch
-      ? savedBranch
-      : workingGitBranch.match(/\d{9}/g)?.at(0);
+    if (savedBranch) return savedBranch;
+    const ticketNameInBranch = workingGitBranch.match(/\d{9}/g)?.at(0);
+    if (!ticketNameInBranch) {
+      logError(new Error("there is no ticket in the branch name"));
+      return null;
+    }
+    await saveBranchNumber(ticketNameInBranch);
+    return ticketNameInBranch;
   } catch (e) {
     return logError(e);
   }
-};
+}
