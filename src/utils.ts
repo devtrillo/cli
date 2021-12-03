@@ -9,6 +9,7 @@ export const asyncShellCommand = (command: string) =>
   new Promise<string>((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) return reject(stderr);
+      if (stdout) console.log(stdout);
       return resolve(stdout);
     });
   });

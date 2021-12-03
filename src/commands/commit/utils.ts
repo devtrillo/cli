@@ -48,12 +48,14 @@ export async function updateTicketNumber(
   ticket: string | undefined,
   replace = false
 ) {
+  const ticketNumberRegex = /\d{1,9}/gm;
   try {
     if (ticket && replace) await saveBranchNumber(ticket);
     const workingGitBranch = await getGitBranch();
     const savedBranch = get(getWorkingBranches(), workingGitBranch);
     if (savedBranch) return savedBranch;
-    const ticketNameInBranch = workingGitBranch.match(/\d{9}/g)?.at(0);
+    const ticketNameInBranch =
+      ticketNumberRegex.exec(workingGitBranch) || [][0];
     if (!ticketNameInBranch) {
       logError(new Error("there is no ticket in the branch name"));
       return null;
