@@ -14,7 +14,8 @@
     "commander": "^8.3.0",
     "esbuild": "^0.14.1",
     "inquirer": "^8.2.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
     "@types/inquirer": "^8.1.3",

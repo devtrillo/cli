@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
 
 export const greenLog = (...args: string[]) =>
   console.log(chalk.green(...args));
@@ -13,7 +13,6 @@ export const asyncShellCommand = (command: string) =>
       return resolve(stdout);
     });
   });
-
 export const logError = (e: any) => {
   redLog("I wasn't able to create the commit properly");
   redLog("ლ(ಠ益ಠლ)");

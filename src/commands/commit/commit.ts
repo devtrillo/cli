@@ -38,23 +38,23 @@ const commitCommand = program
     "after",
     `
   In case you don't pass all the parameters
-  
+
   it will display an ${chalk.green(
-      "interactive form"
-    )} to add the missing information to your commit
+    "interactive form"
+  )} to add the missing information to your commit
   `
   )
   .action(async (responses) => {
     console.log(
       customColor(`
-     ██████╗ ██████╗ ███╗   ███╗███╗   ███╗██╗████████╗   
-    ██╔════╝██╔═══██╗████╗ ████║████╗ ████║██║╚══██╔══╝   
-    ██║     ██║   ██║██╔████╔██║██╔████╔██║██║   ██║      
-    ██║     ██║   ██║██║╚██╔╝██║██║╚██╔╝██║██║   ██║      
-    ╚██████╗╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║   ██║      
-     ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝      
-                                                          
-██╗  ██╗ █████╗ ███╗   ██╗██████╗ ██╗     ███████╗██████╗ 
+     ██████╗ ██████╗ ███╗   ███╗███╗   ███╗██╗████████╗
+    ██╔════╝██╔═══██╗████╗ ████║████╗ ████║██║╚══██╔══╝
+    ██║     ██║   ██║██╔████╔██║██╔████╔██║██║   ██║
+    ██║     ██║   ██║██║╚██╔╝██║██║╚██╔╝██║██║   ██║
+    ╚██████╗╚██████╔╝██║ ╚═╝ ██║██║ ╚═╝ ██║██║   ██║
+     ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝
+
+██╗  ██╗ █████╗ ███╗   ██╗██████╗ ██╗     ███████╗██████╗
 ██║  ██║██╔══██╗████╗  ██║██╔══██╗██║     ██╔════╝██╔══██╗
 ███████║███████║██╔██╗ ██║██║  ██║██║     █████╗  ██████╔╝
 ██╔══██║██╔══██║██║╚██╗██║██║  ██║██║     ██╔══╝  ██╔══██╗
@@ -97,17 +97,17 @@ const commitCommand = program
       };
       await updateTicketNumber(finalResponses.ticket, true);
       await asyncShellCommand(
-        `git commit -m "${(finalResponses.message)}" -m "ticket=[#${finalResponses.ticket
-        }]" -m "risk=${lowerCase(finalResponses.risk)}"`
+        `git commit -m "${finalResponses.message}" -m "[#${
+          finalResponses.ticket
+        }]" -m "risk=[${lowerCase(finalResponses.risk)}]"`
       );
       greenLog("The commit was created successfully");
       greenLog("(´・ω・)っ由");
       if (responses.push) {
-        greenLog("I'm pushing your changes...")
+        greenLog("I'm pushing your changes...");
         await asyncShellCommand("git push -u origin HEAD");
-        greenLog("Your changes have been pushed")
+        greenLog("Your changes have been pushed");
       }
-
     } catch (e) {
       logError(e);
     }

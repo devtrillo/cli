@@ -40,9 +40,13 @@ const createFiles = async ({
   const extension = isTypescript ? "ts" : "js";
   const files = [
     {
-      file: `index.${extension}x`,
+      file: `index.${extension}`,
+      content: `export {default as ${componentName}} from './${componentName}';`,
+    },
+    {
+      file: `${componentName}.${extension}x`,
       content: `${isLegacy ? 'import React from "react"' : ""}
-    ${css ? "import style from './${componentName}.module.css'" : ""}
+${css ? "import style from './${componentName}.module.css'" : ""}
 const ${componentName} = (props)=>{
   return <div>${componentName}</div>
 }
@@ -50,22 +54,22 @@ const ${componentName} = (props)=>{
 export default ${componentName}
     `,
     },
-    //{ file: `${capitalizedName}.stories.${extension}`, content: `` },
+    //{ file: `${componentName}.stories.${extension}`, content: `` },
     {
-      file: `${componentName}.test.${extension}x`,
+      file: `${componentName}.test.${extension}`,
       content: `import { render, screen } from "@testing-library/react";
 import renderer from "react-test-renderer";
 
-import ${componentName} from "./index";
+import ${componentName} from "./${componentName}";
 
 describe("The ${componentName} component", function () {
   it("should not change", function () {
     const tree = renderer.create(<${componentName} />).toJSON();
     expect(tree).toMatchSnapshot();
   });
-  it("should render a ${componentName}", function () {
-     render(<${componentName} />);
-    expect(screen.getByText("${componentName}")).toBeInTheDocument();
+  it("should render a footer", function () {
+    const { getByText } = render(<${componentName} />);
+    expect(getByText("${componentName}")).toBeInTheDocument();
   });
 });
 `,
@@ -82,7 +86,7 @@ describe("The ${componentName} component", function () {
     }
     await fs.appendFile(
       `${directory}/index.${extension}`,
-      `\n export {default as ${componentName}} from "./${componentName}";`
+      `\n export * from "./${componentName}";`
     );
   } catch (e) {
     console.error(e);
