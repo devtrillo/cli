@@ -16,7 +16,7 @@ const testForDirectory = async (directory: string) => {
   }
 };
 const getComponentsDirectory = async () => {
-  const possibleDirectories = ["./src/components", "./components"];
+  const possibleDirectories = ["./src/screens", "./screens"];
   for (const directory of possibleDirectories) {
     const isCorrect = await testForDirectory(directory);
     if (isCorrect) return isCorrect;
@@ -47,7 +47,7 @@ const createFiles = async ({
       file: `${componentName}.${extension}x`,
       content: `${isLegacy ? 'import React from "react"' : ""}
 ${css ? "import style from './${componentName}.module.css'" : ""}
-const ${componentName} = (props)=>{
+const ${componentName} = ()=>{
   return <div>${componentName}</div>
 }
 
@@ -56,7 +56,7 @@ export default ${componentName}
     },
     //{ file: `${componentName}.stories.${extension}`, content: `` },
     {
-      file: `${componentName}.test.${extension}`,
+      file: `${componentName}.test.${extension}x`,
       content: `import { render, screen } from "@testing-library/react";
 
 import ${componentName} from "./${componentName}";
@@ -83,6 +83,10 @@ describe("The ${componentName} component", function () {
       greenLog("Creating the file", `${directory}/${file}`);
       await fs.writeFile(`${dirToSave}/${file}`, content);
     }
+    await fs.appendFile(
+      `${directory}/index.${extension}`,
+      `\n export * from "./${componentName}";`
+    );
   } catch (e) {
     console.error(e);
   }
@@ -95,14 +99,14 @@ type Options = {
   css?: boolean;
 };
 
-export const createComponent = program
-  .command("create")
+export const createScreen = program
+  .command("screen")
   .option("-n --name <name>", "name of the component")
   .option("-t --typescript ", "If i should create a typescript command")
   .option("-l --legacy ", "If I'm using a legacy version of React")
   .option("-c --css ", "With CSS")
   .action(async (options: Options) => {
-    greenLog("Creating a new react component...", JSON.stringify(options));
+    greenLog("Creating a new react screen...", JSON.stringify(options));
     try {
       const componentsFolder = await getComponentsDirectory();
       const inquirerResponses = await inquirer.prompt([

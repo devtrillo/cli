@@ -99,7 +99,7 @@ const commitCommand = program
       await asyncShellCommand(
         `git commit -m "${finalResponses.message}" -m "[#${
           finalResponses.ticket
-        }]" -m "risk=[${lowerCase(finalResponses.risk)}]"`
+        }]" -m "[risk=${lowerCase(finalResponses.risk)}]"`
       );
       greenLog("The commit was created successfully");
       greenLog("(´・ω・)っ由");
